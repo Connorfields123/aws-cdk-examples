@@ -8,6 +8,17 @@ Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function writing to [Ama
 
 ![architecture](docs/architecture.png)
 
+## Features
+
+### Observability and Monitoring
+This stack implements AWS Well-Architected Framework best practices for end-to-end request tracing:
+
+- **AWS X-Ray Tracing**: Enabled on API Gateway and Lambda for distributed tracing
+- **DynamoDB Streams**: Captures all item changes for audit and observability
+- **End-to-End Visibility**: Complete request path tracking from API Gateway → Lambda → DynamoDB
+
+After deployment, you can view traces in the [AWS X-Ray Console](https://console.aws.amazon.com/xray/) to analyze request flows, identify bottlenecks, and troubleshoot issues.
+
 ## Setup
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
@@ -84,6 +95,12 @@ You should get below response
 ```json
 {"message": "Successfully inserted data!"}
 ```
+
+### Viewing Traces
+After making API requests, view the distributed traces in AWS X-Ray:
+1. Navigate to the [AWS X-Ray Console](https://console.aws.amazon.com/xray/)
+2. Select "Service Map" to see the complete architecture visualization
+3. Select "Traces" to view individual request traces with timing details
 
 ## Cleanup 
 Run below script to delete AWS resources created by this sample stack.
