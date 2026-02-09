@@ -58,16 +58,17 @@ class ApigwHttpApiLambdaDynamodbPythonCdkStack(Stack):
             )
         )
 
-        # Create DynamoDb Table
+        # Create DynamoDb Table with Streams enabled for enhanced observability
         demo_table = dynamodb_.Table(
             self,
             TABLE_NAME,
             partition_key=dynamodb_.Attribute(
                 name="id", type=dynamodb_.AttributeType.STRING
             ),
+            stream=dynamodb_.StreamViewType.NEW_AND_OLD_IMAGES,
         )
 
-        # Create the Lambda function to receive the request
+        # Create the Lambda function to receive the request with X-Ray tracing enabled
         api_hanlder = lambda_.Function(
             self,
             "ApiHandler",
@@ -81,15 +82,19 @@ class ApigwHttpApiLambdaDynamodbPythonCdkStack(Stack):
             ),
             memory_size=1024,
             timeout=Duration.minutes(5),
+            tracing=lambda_.Tracing.ACTIVE,
         )
 
         # grant permission to lambda to write to demo table
         demo_table.grant_write_data(api_hanlder)
         api_hanlder.add_environment("TABLE_NAME", demo_table.table_name)
 
-        # Create API Gateway
+        # Create API Gateway with X-Ray tracing enabled
         apigw_.LambdaRestApi(
             self,
             "Endpoint",
             handler=api_hanlder,
+            deploy_options=apigw_.StageOptions(
+                tracing_enabled=True,
+            ),
         )
